@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { MdAdd } from 'react-icons/md';
+import { MdAdd, MdDownload } from 'react-icons/md';
 import { toast } from 'react-toastify';
 import PrimaryButton from '../components/Buttons/PrimaryButton';
 import DangerButton from '../components/Buttons/DangerButton';
@@ -8,6 +8,7 @@ import Spinner from '../components/Loaders/Spinner';
 import Modal from '../components/Modals/Modal';
 import DataTable from '../components/Tables/DataTable';
 import api from '../services/api';
+import { exportToCsv } from '../utils/exportCsv';
 
 const EMPTY_OPTIONS = {
   careers: [],
@@ -130,6 +131,20 @@ function Students() {
     }
   };
 
+  const handleExport = () => {
+    if (students.length === 0) {
+      toast.info('No hay datos para exportar.');
+      return;
+    }
+    exportToCsv(
+      students,
+      ['Cédula', 'Nombres', 'Apellidos', 'Correo', 'Teléfono', 'Carrera', 'Semestre', 'Período', 'Fecha Registro'],
+      ['cedula', 'nombres', 'apellidos', 'correo', 'telefono', 'carrera', 'semestre', 'periodo', 'fecha_registro'],
+      'estudiantes'
+    );
+    toast.success(`${students.length} registro(s) exportados correctamente.`);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-end justify-between">
@@ -137,10 +152,20 @@ function Students() {
           <h1 className="text-2xl font-bold text-slate-800">Estudiantes</h1>
           <p className="text-slate-500">Gestión del alumnado universitario</p>
         </div>
-        <PrimaryButton onClick={handleAdd} className="flex items-center gap-2" disabled={missingCatalogData}>
-          <MdAdd size={20} />
-          Nuevo Estudiante
-        </PrimaryButton>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleExport}
+            disabled={students.length === 0}
+            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <MdDownload size={18} />
+            Exportar CSV
+          </button>
+          <PrimaryButton onClick={handleAdd} className="flex items-center gap-2" disabled={missingCatalogData}>
+            <MdAdd size={20} />
+            Nuevo Estudiante
+          </PrimaryButton>
+        </div>
       </div>
 
       {missingCatalogData ? (

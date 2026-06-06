@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { MdAdd } from 'react-icons/md';
+import { MdAdd, MdDownload } from 'react-icons/md';
 import { toast } from 'react-toastify';
 import PrimaryButton from '../components/Buttons/PrimaryButton';
 import DangerButton from '../components/Buttons/DangerButton';
@@ -8,6 +8,7 @@ import Spinner from '../components/Loaders/Spinner';
 import Modal from '../components/Modals/Modal';
 import DataTable from '../components/Tables/DataTable';
 import api from '../services/api';
+import { exportToCsv } from '../utils/exportCsv';
 
 function Teachers() {
   const [teachers, setTeachers] = useState([]);
@@ -89,6 +90,20 @@ function Teachers() {
     }
   };
 
+  const handleExport = () => {
+    if (teachers.length === 0) {
+      toast.info('No hay datos para exportar.');
+      return;
+    }
+    exportToCsv(
+      teachers,
+      ['Cédula', 'Nombres', 'Apellidos', 'Correo', 'Teléfono', 'Especialidad', 'Fecha Ingreso'],
+      ['cedula', 'nombres', 'apellidos', 'correo', 'telefono', 'especialidad', 'fecha_ingreso'],
+      'profesores'
+    );
+    toast.success(`${teachers.length} registro(s) exportados correctamente.`);
+  };
+
   return (
     <div className="space-y-6">
       <div className="mb-6 flex items-end justify-between">
@@ -96,10 +111,20 @@ function Teachers() {
           <h1 className="text-2xl font-bold text-slate-800">Profesores</h1>
           <p className="text-slate-500">Gestión de docentes universitarios</p>
         </div>
-        <PrimaryButton onClick={handleAdd} className="flex items-center gap-2">
-          <MdAdd size={20} />
-          Nuevo Profesor
-        </PrimaryButton>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleExport}
+            disabled={teachers.length === 0}
+            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <MdDownload size={18} />
+            Exportar CSV
+          </button>
+          <PrimaryButton onClick={handleAdd} className="flex items-center gap-2">
+            <MdAdd size={20} />
+            Nuevo Profesor
+          </PrimaryButton>
+        </div>
       </div>
 
       {loading ? (
